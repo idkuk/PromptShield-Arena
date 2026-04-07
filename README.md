@@ -31,7 +31,7 @@ Each task returns a score between 0.0 and 1.0 with partial credit for correct de
 See `.env.example`.
 - `API_BASE_URL` (LLM endpoint)
 - `MODEL_NAME` (LLM model id)
-- `HF_TOKEN` or `OPENAI_API_KEY`
+- `HF_TOKEN`
 - `ENV_BASE_URL` (OpenEnv server, default `http://localhost:8000`)
 
 ## Local Setup
