@@ -1,0 +1,133 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptShield Arena</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <header class="hero">
+      <div class="hero__meta">
+        <span class="badge">Live</span>
+        <span class="chip">OpenEnv Hackathon · v1.0</span>
+      </div>
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <h1>PromptShield Arena</h1>
+          <p class="hero__subtitle">
+            Train an agent to identify prompt injection attempts under pressure. Classify, explain, and survive infinite rounds.
+          </p>
+          <div class="hero__cta">
+            <button id="resetBtn" class="btn btn--primary">Start Round</button>
+            <button id="healthBtn" class="btn btn--ghost">Check Health</button>
+            <a class="btn btn--ghost" href="/docs" target="_blank" rel="noreferrer">API Docs</a>
+          </div>
+        </div>
+        <div class="hero__panel">
+          <div class="panel__header">Game HUD</div>
+          <div class="panel__body">
+            <div class="hud__row"><span>Level</span><strong id="level">Easy</strong></div>
+            <div class="hud__row"><span>Round</span><strong id="round">1/∞</strong></div>
+            <div class="hud__row"><span>Lives</span><strong id="lives">3</strong></div>
+            <div class="hud__row"><span>Streak</span><strong id="streak">0</strong></div>
+            <div class="hud__row"><span>Reward</span><strong id="reward">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="grid grid--split">
+        <article class="card card--prompt">
+          <h2>Prompt</h2>
+          <pre id="prompt" class="prompt">—</pre>
+          <p class="muted">Classify whether this prompt is safe or an injection attempt.</p>
+        </article>
+
+        <article class="card card--decision">
+          <h2>Decision</h2>
+          <div class="toggle">
+            <button class="toggle__btn" data-decision="safe">Safe</button>
+            <button class="toggle__btn" data-decision="unsafe">Unsafe</button>
+          </div>
+          <label class="label">Explanation (optional)</label>
+          <textarea id="explanation" rows="3" placeholder="Short reasoning..."></textarea>
+          <button id="stepBtn" class="btn btn--primary">Submit</button>
+          <p class="hint">Add a short explanation if you want.</p>
+          <div class="feedback-wrap">
+            <h3>Feedback</h3>
+            <div id="feedback" class="feedback">Submit an answer to see feedback.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid grid--three">
+        <article class="card">
+          <h2>Difficulty Levels</h2>
+          <div class="level-list">
+            <div class="level">
+              <div class="level__tag">Easy</div>
+              <div class="level__desc">Obvious injection attempts, clear cues.</div>
+            </div>
+            <div class="level">
+              <div class="level__tag">Medium</div>
+              <div class="level__desc">Obfuscated or multi-step instructions.</div>
+            </div>
+            <div class="level">
+              <div class="level__tag">Hard</div>
+              <div class="level__desc">Conflicting instructions, policy traps.</div>
+            </div>
+          </div>
+          <div class="segmented">
+            <button class="segmented__btn" data-level="easy">Easy</button>
+            <button class="segmented__btn" data-level="medium">Medium</button>
+            <button class="segmented__btn" data-level="hard">Hard</button>
+          </div>
+          <p class="muted">Levels continue infinitely. Switching levels resets automatically.</p>
+          <div class="status" id="status">Idle</div>
+        </article>
+
+        <article class="card">
+          <h2>Scoreboard</h2>
+          <div class="scoreboard__actions">
+            <button id="resetRoundBtn" class="btn btn--ghost btn--small">Reset Round</button>
+          </div>
+          <div class="reward">
+            <div class="reward__row"><span>Correct classification</span><strong>+1.0</strong></div>
+            <div class="reward__row"><span>Incorrect classification</span><strong>0.0</strong></div>
+          </div>
+          <div class="scoreboard scoreboard--stacked">
+            <div>
+              <div class="stat__label">Total Score</div>
+              <div id="totalScore" class="stat__value">0.0</div>
+            </div>
+            <div>
+              <div class="stat__label">Average</div>
+              <div id="averageScore" class="stat__value">0.00</div>
+            </div>
+            <div>
+              <div class="stat__label">Correct</div>
+              <div id="correctCount" class="stat__value">0</div>
+            </div>
+            <div>
+              <div class="stat__label">Accuracy</div>
+              <div id="accuracy" class="stat__value">0%</div>
+            </div>
+          </div>
+          <p class="muted">Rewards accumulate across infinite rounds. The average score updates live.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>PromptShield Arena • OpenEnv Hackathon 2026</span>
+      <span class="footer__credit">Developed by Pushpanjali Chaudhary, Sneha Gupta &amp; Shruti Jaiswal</span>
+    </footer>
+
+    <script src="/static/app.js?v=2"></script>
+  </body>
+</html>

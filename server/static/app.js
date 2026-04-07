@@ -1,0 +1,152 @@
+﻿const promptEl = document.getElementById("prompt");
+const rewardEl = document.getElementById("reward");
+const levelEl = document.getElementById("level");
+const roundEl = document.getElementById("round");
+const livesEl = document.getElementById("lives");
+const streakEl = document.getElementById("streak");
+const statusEl = document.getElementById("status");
+const feedbackEl = document.getElementById("feedback");
+const totalScoreEl = document.getElementById("totalScore");
+const averageScoreEl = document.getElementById("averageScore");
+const correctCountEl = document.getElementById("correctCount");
+const accuracyEl = document.getElementById("accuracy");
+const resetBtn = document.getElementById("resetBtn");
+const resetRoundBtn = document.getElementById("resetRoundBtn");
+const healthBtn = document.getElementById("healthBtn");
+const stepBtn = document.getElementById("stepBtn");
+const explanationEl = document.getElementById("explanation");
+
+let currentDecision = "safe";
+let currentLevel = "easy";
+let currentPrompt = null;
+let totalRounds = 0; // 0 means infinite
+let gameStarted = false;
+
+function setStatus(text) {
+  statusEl.textContent = text;
+}
+
+function setActive(group, value) {
+  group.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.value === value);
+  });
+}
+
+function updateScoreboard(obs) {
+  totalScoreEl.textContent = (obs.total_score ?? 0).toFixed(1);
+  averageScoreEl.textContent = (obs.average_score ?? 0).toFixed(2);
+  correctCountEl.textContent = obs.correct_count ?? 0;
+  const attempts = Math.max(1, obs.attempts ?? 1);
+  const rawAcc = ((obs.correct_count ?? 0) / attempts) * 100;
+  const acc = Math.min(100, Math.round(rawAcc));
+  accuracyEl.textContent = `${acc}%`;
+}
+
+function formatRounds(obs) {
+  const total = obs.total_rounds ?? 0;
+  if (total <= 0) {
+    return `${obs.round_index}/∞`;
+  }
+  return `${obs.round_index}/${total}`;
+}
+
+const decisionButtons = Array.from(document.querySelectorAll(".toggle__btn")).map((btn) => {
+  btn.dataset.value = btn.dataset.decision;
+  btn.addEventListener("click", () => {
+    currentDecision = btn.dataset.decision;
+    setActive(decisionButtons, currentDecision);
+  });
+  return btn;
+});
+setActive(decisionButtons, currentDecision);
+
+const levelButtons = Array.from(document.querySelectorAll(".segmented__btn")).map((btn) => {
+  btn.dataset.value = btn.dataset.level;
+  btn.addEventListener("click", () => {
+    currentLevel = btn.dataset.level;
+    levelEl.textContent = btn.dataset.level.charAt(0).toUpperCase() + btn.dataset.level.slice(1);
+    setActive(levelButtons, currentLevel);
+    if (gameStarted) {
+      resetEnv();
+    }
+  });
+  return btn;
+});
+setActive(levelButtons, currentLevel);
+
+async function checkHealth() {
+  setStatus("Checking...");
+  try {
+    const res = await fetch("/health");
+    const data = await res.json();
+    setStatus(data.status || "healthy");
+  } catch (err) {
+    setStatus("Offline");
+  }
+}
+
+async function resetEnv() {
+  setStatus("Resetting...");
+  try {
+    const res = await fetch("/game/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task_level: currentLevel, total_rounds: totalRounds, lives: 3 })
+    });
+    const obs = await res.json();
+    currentPrompt = obs;
+    promptEl.textContent = obs.prompt_text || "—";
+    rewardEl.textContent = obs.reward ?? "—";
+    if (feedbackEl) {
+      feedbackEl.textContent = obs.feedback || "Awaiting your decision...";
+    }
+    levelEl.textContent = obs.task_level ? obs.task_level.charAt(0).toUpperCase() + obs.task_level.slice(1) : "Easy";
+    roundEl.textContent = formatRounds(obs);
+    livesEl.textContent = obs.lives;
+    streakEl.textContent = obs.streak;
+    updateScoreboard(obs);
+    gameStarted = true;
+    setStatus("Ready");
+  } catch (err) {
+    setStatus("Error");
+  }
+}
+
+async function stepEnv() {
+  if (!currentPrompt) {
+    setStatus("Reset first");
+    return;
+  }
+  setStatus("Scoring...");
+  try {
+    const res = await fetch("/game/step", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        decision: currentDecision,
+        explanation: explanationEl.value || null,
+      })
+    });
+    const obs = await res.json();
+    rewardEl.textContent = obs.reward ?? "—";
+    promptEl.textContent = obs.prompt_text || "—";
+    if (feedbackEl) {
+      feedbackEl.textContent = obs.feedback || "No feedback available.";
+    }
+    roundEl.textContent = formatRounds(obs);
+    livesEl.textContent = obs.lives;
+    streakEl.textContent = obs.streak;
+    updateScoreboard(obs);
+    explanationEl.value = "";
+    setStatus(obs.done ? "Round complete" : "Next prompt");
+  } catch (err) {
+    setStatus("Error");
+  }
+}
+
+resetBtn.addEventListener("click", resetEnv);
+if (resetRoundBtn) {
+  resetRoundBtn.addEventListener("click", resetEnv);
+}
+healthBtn.addEventListener("click", checkHealth);
+stepBtn.addEventListener("click", stepEnv);

@@ -1,0 +1,10 @@
+﻿name: promptshield_env
+version: "1.0.0"
+description: Prompt injection defense environment for OpenEnv.
+tasks:
+  - id: easy
+    description: Detect obvious prompt injection attempts.
+  - id: medium
+    description: Detect obfuscated or multi-step injection attempts.
+  - id: hard
+    description: Detect multi-turn or conflicting instruction attacks.

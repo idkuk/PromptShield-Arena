@@ -1,0 +1,16 @@
+[project]
+name = "promptshield-env"
+version = "1.0.0"
+description = "Prompt injection defense game environment for OpenEnv"
+requires-python = ">=3.10"
+
+dependencies = [
+  "openenv-core==0.2.3",
+  "openai>=2.7.2",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.uv]
+package = false
