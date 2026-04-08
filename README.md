@@ -4,7 +4,7 @@ emoji: 🚀
 colorFrom: indigo
 colorTo: pink
 sdk: docker
-app_file: server/Dockerfile
+app_file: Dockerfile
 pinned: false
 ---
 # PromptShield Arena (OpenEnv)
