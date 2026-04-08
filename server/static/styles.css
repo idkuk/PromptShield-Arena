@@ -362,6 +362,49 @@ textarea {
   color: rgba(255, 255, 255, 0.6);
 }
 
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(6, 10, 18, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 20;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay__card {
+  width: min(420px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.overlay__card h2 {
+  margin-top: 0;
+}
+
+.overlay__stats {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 18px;
+}
+
+.overlay__stats div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #0f141c;
+}
+
 @media (max-width: 720px) {
   .hero { padding-top: 32px; }
   .footer { flex-direction: column; }

@@ -115,14 +115,6 @@ class PromptShieldEnvironment(Environment):
             self._state.total_rounds > 0 and self._state.round_index >= self._state.total_rounds
         )
 
-        if self._state.lives == 0:
-            task_level = self._state.task_level
-            total_rounds = self._state.total_rounds
-            lives = self._initial_lives
-            reset_obs = self.reset(task_level=task_level, total_rounds=total_rounds, lives=lives)
-            feedback_msg = feedback.rstrip() + (" " if feedback else "") + "Game over. New round started."
-            return PromptShieldObservation(**reset_obs.model_dump(), feedback=feedback_msg)
-
         if not done:
             self._state.round_index += 1
             self._current_item = self._generate_prompt(self._state.task_level)

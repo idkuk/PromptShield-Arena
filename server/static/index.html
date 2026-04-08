@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PromptShield Arena</title>
-    <link rel="stylesheet" href="/static/styles.css?v=3" />
+    <link rel="stylesheet" href="/static/styles.css?v=4" />
   </head>
   <body>
     <div class="bg-orb orb-1"></div>
@@ -44,7 +44,8 @@
         <article class="card card--prompt">
           <h2>Prompt</h2>
           <pre id="prompt" class="prompt">-</pre>
-          <p class="muted">Classify whether this prompt is safe or an injection attempt.</p>          <div class="prompt-howto">
+          <p class="muted">Classify whether this prompt is safe or an injection attempt.</p>
+          <div class="prompt-howto">
             <h3>How To Play</h3>
             <ol>
               <li>Start a round and read the prompt.</li>
@@ -131,11 +132,23 @@
       </section>
     </main>
 
+    <div id="roundOver" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="roundOverTitle">
+      <div class="overlay__card">
+        <h2 id="roundOverTitle">Round Over</h2>
+        <p class="muted">You used all lives. Start a fresh round with full lives.</p>
+        <div class="overlay__stats">
+          <div><span>Total Score</span><strong id="roundOverScore">0.0</strong></div>
+          <div><span>Accuracy</span><strong id="roundOverAcc">0%</strong></div>
+        </div>
+        <button id="roundOverBtn" class="btn btn--primary">Start New Round</button>
+      </div>
+    </div>
+
     <footer class="footer">
       <span>PromptShield Arena - OpenEnv Hackathon 2026</span>
       <span class="footer__credit">Developed by Pushpanjali Chaudhary, Sneha Gupta &amp; Shruti Jaiswal</span>
     </footer>
 
-    <script src="/static/app.js?v=3"></script>
+    <script src="/static/app.js?v=4"></script>
   </body>
 </html>

@@ -15,6 +15,10 @@ const resetRoundBtn = document.getElementById("resetRoundBtn");
 const healthBtn = document.getElementById("healthBtn");
 const stepBtn = document.getElementById("stepBtn");
 const explanationEl = document.getElementById("explanation");
+const roundOverEl = document.getElementById("roundOver");
+const roundOverBtn = document.getElementById("roundOverBtn");
+const roundOverScoreEl = document.getElementById("roundOverScore");
+const roundOverAccEl = document.getElementById("roundOverAcc");
 
 let currentDecision = "safe";
 let currentLevel = "easy";
@@ -24,6 +28,25 @@ let gameStarted = false;
 
 function setStatus(text) {
   statusEl.textContent = text;
+}
+
+function showRoundOver(obs) {
+  if (!roundOverEl) return;
+  const attempts = Math.max(1, obs.attempts ?? 1);
+  const rawAcc = ((obs.correct_count ?? 0) / attempts) * 100;
+  const acc = Math.min(100, Math.round(rawAcc));
+  if (roundOverScoreEl) {
+    roundOverScoreEl.textContent = (obs.total_score ?? 0).toFixed(1);
+  }
+  if (roundOverAccEl) {
+    roundOverAccEl.textContent = `${acc}%`;
+  }
+  roundOverEl.classList.remove("hidden");
+}
+
+function hideRoundOver() {
+  if (!roundOverEl) return;
+  roundOverEl.classList.add("hidden");
 }
 
 function setActive(group, value) {
@@ -95,6 +118,7 @@ async function resetEnv() {
     });
     const obs = await res.json();
     currentPrompt = obs;
+    hideRoundOver();
     promptEl.textContent = obs.prompt_text || "—";
     rewardEl.textContent = obs.reward ?? "—";
     if (feedbackEl) {
@@ -138,6 +162,11 @@ async function stepEnv() {
     streakEl.textContent = obs.streak;
     updateScoreboard(obs);
     explanationEl.value = "";
+    if (obs.done && obs.lives === 0) {
+      setStatus("Round over");
+      showRoundOver(obs);
+      return;
+    }
     setStatus(obs.done ? "Round complete" : "Next prompt");
   } catch (err) {
     setStatus("Error");
@@ -147,6 +176,9 @@ async function stepEnv() {
 resetBtn.addEventListener("click", resetEnv);
 if (resetRoundBtn) {
   resetRoundBtn.addEventListener("click", resetEnv);
+}
+if (roundOverBtn) {
+  roundOverBtn.addEventListener("click", resetEnv);
 }
 healthBtn.addEventListener("click", checkHealth);
 stepBtn.addEventListener("click", stepEnv);
