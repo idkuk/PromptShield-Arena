@@ -418,3 +418,31 @@ textarea {
   font-size: 0.9rem;
   color: rgba(248, 250, 252, 0.7);
 }
+.howto {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.howto__step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #0f141c;
+  font-size: 0.95rem;
+}
+
+.howto__step span {
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
