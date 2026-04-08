@@ -1,8 +1,17 @@
-﻿# PromptShield Arena (OpenEnv)
+---
+title: PromptShield Arena
+emoji: ???
+colorFrom: indigo
+colorTo: pink
+sdk: docker
+app_file: server/Dockerfile
+pinned: false
+---
+# PromptShield Arena (OpenEnv)
 
 PromptShield Arena is a real-world OpenEnv environment for **prompt-injection detection**. It simulates a human task: screening user prompts for injection attempts and optionally providing safe rewrites.
 
-## Tasks (Easy → Medium → Hard)
+## Tasks (Easy ? Medium ? Hard)
 - **easy**: obvious injection phrases
 - **medium**: obfuscated or multi-step attempts
 - **hard**: multi-turn or conflicting instruction attacks
