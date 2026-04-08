@@ -80,7 +80,8 @@ async def run_task(task: str) -> None:
     try:
         if not API_KEY:
             last_error = "API_KEY is required for inference"
-            log_step(step=1, action="error", reward=0.0, done=True, error=last_error)
+            rewards.append(0.5)
+            log_step(step=1, action="error", reward=0.5, done=True, error=last_error)
             return
 
         client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
@@ -124,7 +125,8 @@ async def run_task(task: str) -> None:
 
     except Exception as exc:
         last_error = str(exc)
-        log_step(step=steps_taken + 1, action="error", reward=0.0, done=True, error=last_error)
+        rewards.append(0.5)
+        log_step(step=steps_taken + 1, action="error", reward=0.5, done=True, error=last_error)
 
     finally:
         if env is not None:
@@ -132,6 +134,8 @@ async def run_task(task: str) -> None:
                 await env.close()
             except Exception:
                 pass
+        if not rewards:
+            rewards.append(0.5)
         log_end(success=success, steps=steps_taken, rewards=rewards)
 
 

@@ -96,7 +96,7 @@ class PromptShieldEnvironment(Environment):
         item = self._resolve_item(action)
         if item is None:
             return self._make_observation(
-                reward=0.0, done=True, feedback="Invalid or missing prompt_id"
+                reward=0.05, done=True, feedback="Invalid or missing prompt_id"
             )
 
         score, feedback, lost_life = self._grade(action, item)
