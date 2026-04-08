@@ -26,7 +26,11 @@ def game_step(payload: dict):
     action = PromptShieldAction(**payload)
     result = _game_env.step(action)
     if result.done and result.lives == 0:
-        reset_obs = _game_env.reset(task_level=result.task_level, total_rounds=result.total_rounds, lives=3)
+        reset_obs = _game_env.reset(
+            task_level=result.task_level,
+            total_rounds=result.total_rounds,
+            lives=getattr(_game_env, "_initial_lives", 3),
+        )
         feedback = result.feedback or ""
         if feedback:
             feedback = feedback.rstrip() + " "

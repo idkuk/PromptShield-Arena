@@ -63,6 +63,7 @@ class PromptShieldEnvironment(Environment):
         self._state = PromptShieldState()
         self._current_item: Dict[str, str] = {}
         self._rng = random.Random(42)
+        self._initial_lives = 3
         self._load_prompt_log()
 
     def reset(self, seed=None, episode_id=None, task_level: str = "easy", total_rounds: int = 0, lives: int = 3, **kwargs):
@@ -70,6 +71,7 @@ class PromptShieldEnvironment(Environment):
         if seed is not None:
             self._rng = random.Random(seed)
 
+        self._initial_lives = max(1, int(lives))
         self._state = PromptShieldState(
             episode_id=episode_id or str(uuid.uuid4()),
             step_count=0,
@@ -77,7 +79,7 @@ class PromptShieldEnvironment(Environment):
             prompt_id="",
             round_index=1,
             total_rounds=int(total_rounds) if total_rounds is not None else 0,
-            lives=max(1, int(lives)),
+            lives=self._initial_lives,
             streak=0,
             total_score=0.0,
             attempts=0,
