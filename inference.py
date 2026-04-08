@@ -10,7 +10,7 @@ from models import PromptShieldAction
 # LLM endpoint and model (mandatory variables)
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-API_KEY = os.getenv("API_KEY")
+API_KEY = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY")
 
 # Environment endpoint (local OpenEnv server)
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
@@ -84,6 +84,16 @@ async def run_task(task: str) -> None:
             return
 
         client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+        # Warmup call to ensure the proxy is hit even if the env fails early.
+        try:
+            _ = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": "ping"}],
+                temperature=0.0,
+                max_tokens=1,
+            )
+        except Exception:
+            pass
         env = await PromptShieldEnv.from_base_url(ENV_BASE_URL)
         result = await env.reset(task_level=task, total_rounds=MAX_STEPS, lives=3)
         obs = result.observation
