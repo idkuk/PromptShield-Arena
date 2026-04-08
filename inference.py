@@ -10,8 +10,7 @@ from models import PromptShieldAction
 # LLM endpoint and model (mandatory variables)
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN")
-API_KEY = HF_TOKEN or os.getenv("OPENAI_API_KEY")
+API_KEY = os.getenv("API_KEY")
 
 # Environment endpoint (local OpenEnv server)
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
@@ -80,7 +79,7 @@ async def run_task(task: str) -> None:
 
     try:
         if not API_KEY:
-            last_error = "HF_TOKEN or OPENAI_API_KEY is required for inference"
+            last_error = "API_KEY is required for inference"
             log_step(step=1, action="error", reward=0.0, done=True, error=last_error)
             return
 
