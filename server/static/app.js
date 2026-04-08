@@ -119,8 +119,8 @@ async function resetEnv() {
     const obs = await res.json();
     currentPrompt = obs;
     hideRoundOver();
-    promptEl.textContent = obs.prompt_text || "—";
-    rewardEl.textContent = obs.reward ?? "—";
+    promptEl.textContent = obs.prompt_text || "0";
+    rewardEl.textContent = obs.reward ?? "0";
     if (feedbackEl) {
       feedbackEl.textContent = obs.feedback || "Awaiting your decision...";
     }
@@ -152,8 +152,8 @@ async function stepEnv() {
       })
     });
     const obs = await res.json();
-    rewardEl.textContent = obs.reward ?? "—";
-    promptEl.textContent = obs.prompt_text || "—";
+    rewardEl.textContent = obs.reward ?? "0";
+    promptEl.textContent = obs.prompt_text || "0";
     if (feedbackEl) {
       feedbackEl.textContent = obs.feedback || "No feedback available.";
     }
