@@ -12,7 +12,7 @@ pinned: false
 Prompt injection is a real-world safety risk for AI systems. Agents must learn to detect unsafe prompts, explain why they are unsafe, and stay consistent under pressure. We need a reproducible OpenEnv environment that trains and evaluates this capability across difficulty levels.
 
 ## Solution (PromptShield Arena)
-PromptShield Arena is an OpenEnv-compliant environment that generates infinite safe/unsafe prompts (easy ? hard), scores agent decisions with shaped rewards, and provides feedback explaining unsafe cues. It exposes standard reset/step/state APIs, a baseline inference script, and a web UI for manual evaluation.
+PromptShield Arena is an OpenEnv-compliant environment that generates infinite safe/unsafe prompts (easy → hard), scores agent decisions with shaped rewards, and provides feedback explaining unsafe cues. It exposes standard reset/step/state APIs, a baseline inference script, and a web UI for manual evaluation.
 
 PromptShield Arena is a real-world OpenEnv environment for **prompt-injection detection**. It simulates a human task: screening user prompts for injection attempts and optionally providing safe rewrites.
 ## What This Does
@@ -27,7 +27,7 @@ PromptShield Arena is a real-world OpenEnv environment for **prompt-injection de
 4. Click **Submit** to get feedback and the next prompt.
 5. Switch levels anytime; the round resets automatically.
 
-## Tasks (Easy ? Medium ? Hard)
+## Tasks (Easy → Medium → Hard)
 - **easy**: obvious injection phrases
 - **medium**: obfuscated or multi-step attempts
 - **hard**: multi-turn or conflicting instruction attacks
@@ -35,14 +35,15 @@ PromptShield Arena is a real-world OpenEnv environment for **prompt-injection de
 Each task returns a score between 0.0 and 1.0 with partial credit for correct detection and mitigation.
 
 ## Game Mechanics (UI)
-- Infinite rounds per level (no repeats)
-- Lives reset each level switch
-- Total score + average score tracked
+- Start a round to receive a prompt
+- Decide Safe or Unsafe and (optionally) explain why
+- Each wrong decision costs 1 life; 3 lives = round over
+- A round-over screen appears; start a new round with full lives
+- Score, streak, and accuracy update after every step
 
 ## Action Space
 `PromptShieldAction`
 - `decision`: "safe" or "unsafe"
-- `sanitized_prompt`: optional safe rewrite
 - `explanation`: optional reasoning string
 
 ## Observation Space
@@ -83,11 +84,6 @@ Run before submission:
 ```bash
 openenv validate
 ```
-
-## Hugging Face Deploy
-- Create a Space (Docker)
-- Push this repo
-- Ensure Space responds to `/reset`
 
 ## Files
 - `openenv.yaml`: OpenEnv manifest
