@@ -8,6 +8,11 @@ app_file: Dockerfile
 pinned: false
 ---
 # PromptShield Arena (OpenEnv)
+## Problem Statement
+Prompt injection is a real-world safety risk for AI systems. Agents must learn to detect unsafe prompts, explain why they are unsafe, and stay consistent under pressure. We need a reproducible OpenEnv environment that trains and evaluates this capability across difficulty levels.
+
+## Solution (PromptShield Arena)
+PromptShield Arena is an OpenEnv-compliant environment that generates infinite safe/unsafe prompts (easy ? hard), scores agent decisions with shaped rewards, and provides feedback explaining unsafe cues. It exposes standard reset/step/state APIs, a baseline inference script, and a web UI for manual evaluation.
 
 PromptShield Arena is a real-world OpenEnv environment for **prompt-injection detection**. It simulates a human task: screening user prompts for injection attempts and optionally providing safe rewrites.
 ## What This Does
