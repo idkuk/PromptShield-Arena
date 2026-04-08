@@ -11,7 +11,7 @@ from models import PromptShieldAction
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
-API_KEY = HF_TOKEN
+API_KEY = HF_TOKEN or os.getenv("OPENAI_API_KEY")
 
 # Environment endpoint (local OpenEnv server)
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
@@ -69,8 +69,8 @@ def get_model_decision(client: OpenAI, prompt_text: str) -> str:
 
 
 async def run_task(task: str) -> None:
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-    env = await PromptShieldEnv.from_base_url(ENV_BASE_URL)
+    client = None
+    env = None
     rewards: List[float] = []
     steps_taken = 0
     success = False
@@ -79,11 +79,23 @@ async def run_task(task: str) -> None:
     log_start(task=task, env=BENCHMARK, model=MODEL_NAME)
 
     try:
+        if not API_KEY:
+            last_error = "HF_TOKEN or OPENAI_API_KEY is required for inference"
+            log_step(step=1, action="error", reward=0.0, done=True, error=last_error)
+            return
+
+        client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+        env = await PromptShieldEnv.from_base_url(ENV_BASE_URL)
         result = await env.reset(task_level=task, total_rounds=MAX_STEPS, lives=3)
         obs = result.observation
 
         for step in range(1, MAX_STEPS + 1):
-            decision = get_model_decision(client, obs.prompt_text)
+            step_error: Optional[str] = None
+            try:
+                decision = get_model_decision(client, obs.prompt_text)
+            except Exception as exc:
+                step_error = str(exc)
+                decision = "safe"
             action = PromptShieldAction(decision=decision)
             result = await env.step(action)
             obs = result.observation
@@ -93,7 +105,7 @@ async def run_task(task: str) -> None:
             rewards.append(reward)
             steps_taken = step
 
-            log_step(step=step, action=decision, reward=reward, done=done, error=last_error)
+            log_step(step=step, action=decision, reward=reward, done=done, error=step_error)
 
             if done:
                 break
@@ -106,17 +118,15 @@ async def run_task(task: str) -> None:
         log_step(step=steps_taken + 1, action="error", reward=0.0, done=True, error=last_error)
 
     finally:
-        try:
-            await env.close()
-        except Exception:
-            pass
+        if env is not None:
+            try:
+                await env.close()
+            except Exception:
+                pass
         log_end(success=success, steps=steps_taken, rewards=rewards)
 
 
 async def main() -> None:
-    if not API_KEY:
-        raise RuntimeError("HF_TOKEN or OPENAI_API_KEY is required for inference")
-
     for task in TASKS:
         await run_task(task)
 
