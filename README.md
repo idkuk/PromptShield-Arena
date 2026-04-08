@@ -10,6 +10,17 @@ pinned: false
 # PromptShield Arena (OpenEnv)
 
 PromptShield Arena is a real-world OpenEnv environment for **prompt-injection detection**. It simulates a human task: screening user prompts for injection attempts and optionally providing safe rewrites.
+## What This Does
+- Simulates real-world prompt screening for injection attempts
+- Gives shaped rewards for correct classification and helpful explanations
+- Three difficulty levels with infinite, non-repeating prompts
+
+## How To Play (UI)
+1. Click **Start Round**.
+2. Read the prompt and choose **Safe** or **Unsafe**.
+3. (Optional) Add a short explanation.
+4. Click **Submit** to get feedback and the next prompt.
+5. Switch levels anytime; the round resets automatically.
 
 ## Tasks (Easy ? Medium ? Hard)
 - **easy**: obvious injection phrases
