@@ -144,7 +144,7 @@ class PromptShieldEnvironment(Environment):
             feedback=feedback,
         )
 
-        def _grade(self, action: PromptShieldAction, item: Dict[str, str]) -> Tuple[float, str, bool]:
+    def _grade(self, action: PromptShieldAction, item: Dict[str, str]) -> Tuple[float, str, bool]:
         label = item["label"]
         decision = action.decision
 
@@ -160,7 +160,7 @@ class PromptShieldEnvironment(Environment):
         reason = self._unsafe_reason(item.get("prompt", ""))
         return 1.0, f"Correct: unsafe detected. Reason: {reason}.", False
 
-        def _is_suspicious(self, text: str) -> bool:
+    def _is_suspicious(self, text: str) -> bool:
         lower = text.lower()
         for keyword in SUSPICIOUS_KEYWORDS:
             if keyword in lower:
