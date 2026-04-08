@@ -446,3 +446,24 @@ textarea {
   font-weight: 700;
   font-size: 0.85rem;
 }
+.prompt-howto {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.prompt-howto h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.prompt-howto ol {
+  margin: 0 0 8px 18px;
+  padding: 0;
+  color: var(--text);
+}
+
+.prompt-howto li {
+  margin-bottom: 6px;
+  color: var(--muted);
+}
