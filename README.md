@@ -1,6 +1,6 @@
-﻿---
+---
 title: PromptShield Arena
-emoji: 🚀
+emoji: ??
 colorFrom: indigo
 colorTo: pink
 sdk: docker
