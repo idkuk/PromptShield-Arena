@@ -1,4 +1,4 @@
-ï»¿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -13,7 +13,7 @@
     <header class="hero">
       <div class="hero__meta">
         <span class="badge">Live</span>
-        <span class="chip">OpenEnv Hackathon Â· v1.0</span>
+        <span class="chip">OpenEnv Hackathon · v1.0</span>
       </div>
       <div class="hero__grid">
         <div class="hero__copy">
@@ -31,20 +31,30 @@
           <div class="panel__header">Game HUD</div>
           <div class="panel__body">
             <div class="hud__row"><span>Level</span><strong id="level">Easy</strong></div>
-            <div class="hud__row"><span>Round</span><strong id="round">1/âˆž</strong></div>
+            <div class="hud__row"><span>Round</span><strong id="round">1/8</strong></div>
             <div class="hud__row"><span>Lives</span><strong id="lives">3</strong></div>
             <div class="hud__row"><span>Streak</span><strong id="streak">0</strong></div>
-            <div class="hud__row"><span>Reward</span><strong id="reward">â€”</strong></div>
+            <div class="hud__row"><span>Reward</span><strong id="reward">—</strong></div>
           </div>
         </div>
       </div>
     </header>
+    <section class="banner">
+      <div class="banner__title">How To Play</div>
+      <div class="banner__steps">
+        <div><span>1</span>Start a round and read the prompt.</div>
+        <div><span>2</span>Choose Safe or Unsafe.</div>
+        <div><span>3</span>Add a short explanation (optional).</div>
+        <div><span>4</span>Submit to get feedback and the next prompt.</div>
+      </div>
+      <div class="banner__note">Why it matters: real systems must resist prompt injection in the wild.</div>
+    </section>
 
     <main class="main">
       <section class="grid grid--split">
         <article class="card card--prompt">
           <h2>Prompt</h2>
-          <pre id="prompt" class="prompt">â€”</pre>
+          <pre id="prompt" class="prompt">—</pre>
           <p class="muted">Classify whether this prompt is safe or an injection attempt.</p>
         </article>
 
@@ -124,7 +134,7 @@
     </main>
 
     <footer class="footer">
-      <span>PromptShield Arena â€¢ OpenEnv Hackathon 2026</span>
+      <span>PromptShield Arena • OpenEnv Hackathon 2026</span>
       <span class="footer__credit">Developed by Pushpanjali Chaudhary, Sneha Gupta &amp; Shruti Jaiswal</span>
     </footer>
 
