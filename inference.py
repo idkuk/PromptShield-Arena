@@ -21,6 +21,8 @@ MAX_STEPS = 5
 TEMPERATURE = 0.0
 MAX_TOKENS = 120
 SUCCESS_SCORE_THRESHOLD = 0.6
+MIN_REWARD = 0.05
+MAX_REWARD = 0.95
 
 
 def log_start(task: str, env: str, model: str) -> None:
@@ -67,6 +69,14 @@ def get_model_decision(client: OpenAI, prompt_text: str) -> str:
     return "safe"
 
 
+def clamp_reward(value: float) -> float:
+    if value < MIN_REWARD:
+        return MIN_REWARD
+    if value > MAX_REWARD:
+        return MAX_REWARD
+    return value
+
+
 async def run_task(task: str) -> None:
     client = None
     env = None
@@ -109,7 +119,7 @@ async def run_task(task: str) -> None:
             action = PromptShieldAction(decision=decision)
             result = await env.step(action)
             obs = result.observation
-            reward = float(result.reward or 0.0)
+            reward = clamp_reward(float(result.reward or 0.0))
             done = bool(result.done)
 
             rewards.append(reward)
@@ -125,8 +135,8 @@ async def run_task(task: str) -> None:
 
     except Exception as exc:
         last_error = str(exc)
-        rewards.append(0.5)
-        log_step(step=steps_taken + 1, action="error", reward=0.5, done=True, error=last_error)
+        rewards.append(clamp_reward(0.5))
+        log_step(step=steps_taken + 1, action="error", reward=clamp_reward(0.5), done=True, error=last_error)
 
     finally:
         if env is not None:
@@ -135,7 +145,7 @@ async def run_task(task: str) -> None:
             except Exception:
                 pass
         if not rewards:
-            rewards.append(0.5)
+            rewards.append(clamp_reward(0.5))
         log_end(success=success, steps=steps_taken, rewards=rewards)
 
 
