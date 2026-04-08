@@ -24,19 +24,7 @@ def game_reset(payload: dict):
 @app.post("/game/step")
 def game_step(payload: dict):
     action = PromptShieldAction(**payload)
-    result = _game_env.step(action)
-    if result.done and result.lives == 0:
-        reset_obs = _game_env.reset(
-            task_level=result.task_level,
-            total_rounds=result.total_rounds,
-            lives=getattr(_game_env, "_initial_lives", 3),
-        )
-        feedback = result.feedback or ""
-        if feedback:
-            feedback = feedback.rstrip() + " "
-        feedback += "Game over. New round started."
-        return PromptShieldObservation(**reset_obs.model_dump(), feedback=feedback)
-    return result
+    return _game_env.step(action)
 
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
