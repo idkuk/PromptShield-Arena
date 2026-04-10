@@ -24,7 +24,7 @@ class PromptShieldState(State):
     task_level: str = "easy"
     prompt_id: str = ""
     round_index: int = 1
-    total_rounds: int = 3
+    total_rounds: int = 0
     lives: int = 3
     streak: int = 0
     total_score: float = 0.0
