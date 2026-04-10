@@ -10,7 +10,7 @@ from models import PromptShieldAction
 # LLM endpoint and model (mandatory variables)
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-API_KEY = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Environment endpoint (local OpenEnv server)
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
@@ -38,10 +38,10 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
     )
 
 
-def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
+def log_end(success: bool, steps: int, rewards: List[float]) -> None:
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(
-        f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}",
+        f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str}",
         flush=True,
     )
 
@@ -88,23 +88,13 @@ async def run_task(task: str) -> None:
     log_start(task=task, env=BENCHMARK, model=MODEL_NAME)
 
     try:
-        if not API_KEY:
-            last_error = "API_KEY is required for inference"
+        if not HF_TOKEN:
+            last_error = "HF_TOKEN is required for inference"
             rewards.append(0.5)
             log_step(step=1, action="error", reward=0.5, done=True, error=last_error)
             return
 
-        client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-        # Warmup call to ensure the proxy is hit even if the env fails early.
-        try:
-            _ = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": "ping"}],
-                temperature=0.0,
-                max_tokens=1,
-            )
-        except Exception:
-            pass
+        client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
         env = await PromptShieldEnv.from_base_url(ENV_BASE_URL)
         result = await env.reset(task_level=task, total_rounds=MAX_STEPS, lives=3)
         obs = result.observation
@@ -147,8 +137,7 @@ async def run_task(task: str) -> None:
                 pass
         if not rewards:
             rewards.append(clamp_reward(0.5))
-        score = clamp_reward(sum(rewards) / max(1, len(rewards)))
-        log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+        log_end(success=success, steps=steps_taken, rewards=rewards)
 
 
 async def main() -> None:
