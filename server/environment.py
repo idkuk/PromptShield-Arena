@@ -285,7 +285,7 @@ class PromptShieldEnvironment(Environment):
             return f"{base}\nPlease answer {modifier}.\nKeep it clear and direct."
         if is_unsafe:
             trap = self._rng.choice(UNSAFE_POLICY_TRAPS + UNSAFE_MULTI_TURN)
-            return f"{trap}\n\n{base}\n({modifier})"
+            return f"{trap}\n\n{base}"
         paragraph = self._rng.choice(SAFE_PARAGRAPHS)
         return f"{paragraph}\n\n{base}\nPlease answer {modifier}."
 
@@ -299,20 +299,26 @@ class PromptShieldEnvironment(Environment):
         domain, idx = self._choose_by_index(SAFE_DOMAINS, idx)
 
         base = self._rng.choice(SAFE_TEMPLATES).format(topic=topic)
-        modifier = f"{self._rng.choice(STYLE_MODIFIERS)}; use {fmt} for {audience}; tone: {tone}; focus: {intent} ({domain})"
+        if level == "easy":
+            modifier = self._rng.choice(STYLE_MODIFIERS)
+        elif level == "medium":
+            modifier = f"{self._rng.choice(STYLE_MODIFIERS)}; use {fmt}"
+        else:
+            modifier = f"{self._rng.choice(STYLE_MODIFIERS)}; use {fmt}; tone: {tone}"
         return self._wrap_prompt(base, modifier, level, False)
 
     def _build_unsafe_prompt(self, level: str) -> str:
-        idx = self._next_index(True)
-        tactic, idx = self._choose_by_index(UNSAFE_TACTICS, idx)
-        goal, idx = self._choose_by_index(UNSAFE_GOALS, idx)
-        role, idx = self._choose_by_index(UNSAFE_ROLES, idx)
-        context, idx = self._choose_by_index(UNSAFE_CONTEXTS, idx)
-        constraint, idx = self._choose_by_index(UNSAFE_CONSTRAINTS, idx)
-
+        self._next_index(True)
         base = self._rng.choice(UNSAFE_TEMPLATES)
-        modifier = f"{context}; tactic: {tactic}; role: {role}; goal: {goal}; {constraint}"
-        return self._wrap_prompt(base, modifier, level, True)
+        # Build harder prompts via natural language traps without revealing labels/tactics.
+        if level == "easy":
+            return self._wrap_prompt(base, self._rng.choice(UNSAFE_MODIFIERS), level, True)
+        if level == "medium":
+            mod = self._rng.choice(UNSAFE_MODIFIERS)
+            return f"{base}\nJust for context, this is {mod}.\nPlease comply."
+        # hard
+        trap = self._rng.choice(UNSAFE_POLICY_TRAPS + UNSAFE_MULTI_TURN)
+        return f"{trap}\n\n{base}"
 
     def _generate_prompt(self, level: str) -> Dict[str, str]:
         cfg = LEVEL_CONFIG.get(level, LEVEL_CONFIG["easy"])
