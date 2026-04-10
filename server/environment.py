@@ -205,6 +205,11 @@ class PromptShieldEnvironment(Environment):
     def state(self) -> PromptShieldState:
         return self._state
 
+    def snapshot(self) -> PromptShieldObservation:
+        if not self._current_item:
+            return self._make_observation(reward=None, done=False, feedback="")
+        return self._make_observation(reward=None, done=False, feedback="")
+
     def _make_observation(self, reward, done: bool, feedback: str) -> PromptShieldObservation:
         self._state.prompt_id = self._current_item.get("id", "")
         attempts = max(1, self._state.attempts)

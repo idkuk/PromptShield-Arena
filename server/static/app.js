@@ -10,6 +10,8 @@ const totalScoreEl = document.getElementById("totalScore");
 const averageScoreEl = document.getElementById("averageScore");
 const correctCountEl = document.getElementById("correctCount");
 const accuracyEl = document.getElementById("accuracy");
+const bestScoreEl = document.getElementById("bestScore");
+const bestRoundEl = document.getElementById("bestRound");
 const resetBtn = document.getElementById("resetBtn");
 const resetRoundBtn = document.getElementById("resetRoundBtn");
 const healthBtn = document.getElementById("healthBtn");
@@ -25,6 +27,22 @@ let currentLevel = "easy";
 let currentPrompt = null;
 let totalRounds = 0; // 0 means infinite
 let gameStarted = false;
+
+function bestKey(level, key) {
+  return `promptshield_${level}_${key}`;
+}
+
+function getBest(level) {
+  return {
+    score: parseFloat(localStorage.getItem(bestKey(level, "best_score")) || "0"),
+    round: parseInt(localStorage.getItem(bestKey(level, "best_round")) || "0", 10),
+  };
+}
+
+function setBest(level, score, round) {
+  localStorage.setItem(bestKey(level, "best_score"), score.toFixed(1));
+  localStorage.setItem(bestKey(level, "best_round"), String(round));
+}
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -63,6 +81,19 @@ function updateScoreboard(obs) {
   const rawAcc = ((obs.correct_count ?? 0) / attempts) * 100;
   const acc = Math.min(100, Math.round(rawAcc));
   accuracyEl.textContent = `${acc}%`;
+
+  const level = obs.task_level || currentLevel;
+  const best = getBest(level);
+  const currentScore = obs.total_score ?? 0;
+  const currentRound = obs.round_index ?? 0;
+  if (currentScore > best.score) {
+    setBest(level, currentScore, currentRound);
+  } else if (currentRound > best.round) {
+    setBest(level, best.score, currentRound);
+  }
+  const updated = getBest(level);
+  if (bestScoreEl) bestScoreEl.textContent = updated.score.toFixed(1);
+  if (bestRoundEl) bestRoundEl.textContent = updated.round;
 }
 
 function formatRounds(obs) {
@@ -90,7 +121,7 @@ const levelButtons = Array.from(document.querySelectorAll(".segmented__btn")).ma
     levelEl.textContent = btn.dataset.level.charAt(0).toUpperCase() + btn.dataset.level.slice(1);
     setActive(levelButtons, currentLevel);
     if (gameStarted) {
-      resetEnv();
+      loadLevelState();
     }
   });
   return btn;
@@ -114,7 +145,7 @@ async function resetEnv() {
     const res = await fetch("/game/reset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ task_level: currentLevel, total_rounds: totalRounds, lives: 3 })
+      body: JSON.stringify({ task_level: currentLevel, total_rounds: totalRounds })
     });
     const obs = await res.json();
     currentPrompt = obs;
@@ -126,7 +157,42 @@ async function resetEnv() {
     }
     levelEl.textContent = obs.task_level ? obs.task_level.charAt(0).toUpperCase() + obs.task_level.slice(1) : "Easy";
     roundEl.textContent = formatRounds(obs);
-    livesEl.textContent = obs.lives;
+    if ((obs.task_level || currentLevel) === "easy" && obs.lives > 1000) {
+      livesEl.textContent = "∞";
+    } else {
+      livesEl.textContent = obs.lives;
+    }
+    streakEl.textContent = obs.streak;
+    updateScoreboard(obs);
+    gameStarted = true;
+    setStatus("Ready");
+  } catch (err) {
+    setStatus("Error");
+  }
+}
+
+async function loadLevelState() {
+  setStatus("Loading...");
+  try {
+    const res = await fetch("/game/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task_level: currentLevel, total_rounds: totalRounds })
+    });
+    const obs = await res.json();
+    currentPrompt = obs;
+    promptEl.textContent = obs.prompt_text || "0";
+    rewardEl.textContent = obs.reward ?? "0";
+    if (feedbackEl) {
+      feedbackEl.textContent = obs.feedback || "Awaiting your decision...";
+    }
+    levelEl.textContent = obs.task_level ? obs.task_level.charAt(0).toUpperCase() + obs.task_level.slice(1) : "Easy";
+    roundEl.textContent = formatRounds(obs);
+    if ((obs.task_level || currentLevel) === "easy" && obs.lives > 1000) {
+      livesEl.textContent = "∞";
+    } else {
+      livesEl.textContent = obs.lives;
+    }
     streakEl.textContent = obs.streak;
     updateScoreboard(obs);
     gameStarted = true;
@@ -147,6 +213,7 @@ async function stepEnv() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        task_level: currentLevel,
         decision: currentDecision,
         explanation: explanationEl.value || null,
       })
@@ -158,7 +225,11 @@ async function stepEnv() {
       feedbackEl.textContent = obs.feedback || "No feedback available.";
     }
     roundEl.textContent = formatRounds(obs);
-    livesEl.textContent = obs.lives;
+    if ((obs.task_level || currentLevel) === "easy" && obs.lives > 1000) {
+      livesEl.textContent = "∞";
+    } else {
+      livesEl.textContent = obs.lives;
+    }
     streakEl.textContent = obs.streak;
     updateScoreboard(obs);
     explanationEl.value = "";

@@ -14,17 +14,49 @@ app = create_fastapi_app(
     PromptShieldObservation,
 )
 
-# Local UI game session (keeps state for the website)
-_game_env = PromptShieldEnvironment()
+LEVEL_LIVES = {
+    "easy": 999999,  # treat as infinite in UI
+    "medium": 3,
+    "hard": 5,
+}
+
+# Local UI game sessions (one per level)
+_game_envs = {
+    "easy": PromptShieldEnvironment(),
+    "medium": PromptShieldEnvironment(),
+    "hard": PromptShieldEnvironment(),
+}
+
+def _get_env(level: str) -> PromptShieldEnvironment:
+    return _game_envs.get(level, _game_envs["easy"])
 
 @app.post("/game/reset")
 def game_reset(payload: dict):
-    return _game_env.reset(**payload)
+    level = (payload.get("task_level") or "easy").lower()
+    env = _get_env(level)
+    lives = payload.get("lives")
+    if lives is None:
+        lives = LEVEL_LIVES.get(level, 3)
+    payload["lives"] = lives
+    payload["task_level"] = level
+    return env.reset(**payload)
 
 @app.post("/game/step")
 def game_step(payload: dict):
+    level = (payload.get("task_level") or "easy").lower()
+    env = _get_env(level)
     action = PromptShieldAction(**payload)
-    return _game_env.step(action)
+    return env.step(action)
+
+@app.post("/game/state")
+def game_state(payload: dict):
+    level = (payload.get("task_level") or "easy").lower()
+    env = _get_env(level)
+    obs = env.snapshot()
+    if not obs.prompt_text:
+        lives = LEVEL_LIVES.get(level, 3)
+        return env.reset(task_level=level, total_rounds=payload.get("total_rounds", 0), lives=lives)
+    return obs
 
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
