@@ -1,4 +1,5 @@
 ﻿from typing import Optional, Literal
+from pydantic import model_validator
 from openenv.core.env_server import Action, Observation, State
 
 class PromptShieldAction(Action):
@@ -20,6 +21,17 @@ class PromptShieldObservation(Observation):
     correct_count: int
     feedback: str
 
+    @model_validator(mode="after")
+    def _clamp_scores(self):
+        # Enforce strict (0,1) range for any score-like fields.
+        if self.reward is None:
+            self.reward = 0.1
+        else:
+            self.reward = min(0.9, max(0.1, float(self.reward)))
+        self.total_score = min(0.9, max(0.1, float(self.total_score)))
+        self.average_score = min(0.9, max(0.1, float(self.average_score)))
+        return self
+
 class PromptShieldState(State):
     task_level: str = "easy"
     prompt_id: str = ""
@@ -30,3 +42,9 @@ class PromptShieldState(State):
     total_score: float = 0.0
     attempts: int = 0
     correct_count: int = 0
+
+    @model_validator(mode="after")
+    def _clamp_state_score(self):
+        self.total_score = min(0.9, max(0.1, float(self.total_score)))
+        return self
+
