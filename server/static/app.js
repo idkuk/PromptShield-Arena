@@ -224,6 +224,14 @@ async function stepEnv() {
         explanation: explanationEl.value || null,
       })
     });
+    if (!res.ok) {
+      const errText = await res.text();
+      setStatus("Error");
+      if (feedbackEl) {
+        feedbackEl.textContent = `Server error: ${errText}`;
+      }
+      return;
+    }
     const obs = await res.json();
     rewardEl.textContent = obs.reward ?? "0";
     promptEl.textContent = obs.prompt_text || "0";
