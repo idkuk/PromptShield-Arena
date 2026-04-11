@@ -347,7 +347,8 @@ class PromptShieldEnvironment(Environment):
                 }
 
         extra = uuid.uuid4().hex[:4]
-        prompt = f"{base} (detail-{extra})."
+        fallback_base = "Explain a simple concept briefly."
+        prompt = f"{fallback_base} (detail-{extra})."
         PROMPT_TEXT_SEEN.add(prompt)
         self._append_prompt_log(prompt)
         return {
