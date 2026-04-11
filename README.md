@@ -48,10 +48,8 @@ Each task returns a score between 0.0 and 1.0 with partial credit for correct de
 ## Architecture
 ```mermaid
 flowchart LR
-  A[Prompt] --> B[Detector]
-(Policy + Heuristics)
-  B --> C{Decision}
-Safe / Unsafe
+  A[Prompt] --> B[Detector<br/>Policy + Heuristics]
+  B --> C{Decision<br/>Safe / Unsafe}
   C --> D[Reward + Feedback]
   D --> E[Next Prompt]
 ```
