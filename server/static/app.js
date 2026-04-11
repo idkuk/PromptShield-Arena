@@ -7,6 +7,8 @@ const streakEl = document.getElementById("streak");
 const statusEl = document.getElementById("status");
 const feedbackEl = document.getElementById("feedback");
 const feedbackTagsEl = document.getElementById("feedbackTags");
+const mistakeListEl = document.getElementById("mistakeList");
+const clearMistakesBtn = document.getElementById("clearMistakesBtn");
 const totalScoreEl = document.getElementById("totalScore");
 const averageScoreEl = document.getElementById("averageScore");
 const correctCountEl = document.getElementById("correctCount");
@@ -35,6 +37,72 @@ let gameStarted = false;
 
 function bestKey(level, key) {
   return `promptshield_${level}_${key}`;
+}
+
+function mistakesKey(level) {
+  return `promptshield_${level}_mistakes`;
+}
+
+function getMistakes(level) {
+  try {
+    return JSON.parse(localStorage.getItem(mistakesKey(level)) || "[]");
+  } catch (err) {
+    return [];
+  }
+}
+
+function setMistakes(level, items) {
+  const trimmed = items.slice(-20);
+  localStorage.setItem(mistakesKey(level), JSON.stringify(trimmed));
+}
+
+function renderMistakes(level) {
+  if (!mistakeListEl) return;
+  const items = getMistakes(level);
+  mistakeListEl.innerHTML = "";
+  if (!items.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = "No mistakes yet.";
+    mistakeListEl.appendChild(empty);
+    return;
+  }
+  items.slice().reverse().forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "mistake";
+
+    const prompt = document.createElement("div");
+    prompt.className = "mistake__prompt";
+    const raw = item.prompt || "";
+    prompt.textContent = raw.length > 240 ? `${raw.slice(0, 240)}?` : raw;
+
+    const meta = document.createElement("div");
+    meta.className = "mistake__meta";
+
+    const yourBadge = document.createElement("span");
+    yourBadge.className = "mistake__badge";
+    yourBadge.textContent = `You said: ${item.decision}`;
+
+    const expBadge = document.createElement("span");
+    expBadge.className = "mistake__badge mistake__badge--expected";
+    expBadge.textContent = `Expected: ${item.expected}`;
+
+    const reason = document.createElement("span");
+    reason.textContent = item.reason ? `Reason: ${item.reason}` : "Reason: ?";
+
+    meta.appendChild(yourBadge);
+    meta.appendChild(expBadge);
+    meta.appendChild(reason);
+
+    card.appendChild(prompt);
+    card.appendChild(meta);
+    mistakeListEl.appendChild(card);
+  });
+}
+
+function clearMistakes(level) {
+  setMistakes(level, []);
+  renderMistakes(level);
 }
 
 function getBest(level) {
@@ -160,6 +228,7 @@ async function resetEnv() {
     const obs = await res.json();
     currentPrompt = obs;
     hideRoundOver();
+    clearMistakes(currentLevel);
     promptEl.textContent = obs.prompt_text || "0";
     rewardEl.textContent = obs.reward ?? "0";
     if (feedbackEl) {
@@ -195,6 +264,7 @@ async function loadLevelState() {
     const obs = await res.json();
     currentPrompt = obs;
     promptEl.textContent = obs.prompt_text || "0";
+    renderMistakes(currentLevel);
     rewardEl.textContent = obs.reward ?? "0";
     if (feedbackEl) {
       feedbackEl.textContent = obs.feedback || "Awaiting your decision...";
@@ -223,6 +293,7 @@ async function stepEnv() {
     setStatus("Reset first");
     return;
   }
+  const prevPromptText = (currentPrompt && currentPrompt.prompt_text) ? currentPrompt.prompt_text : promptEl.textContent;
   setStatus("Scoring...");
   try {
     const res = await fetch("/game/step", {
@@ -243,6 +314,7 @@ async function stepEnv() {
       return;
     }
     const obs = await res.json();
+    currentPrompt = obs;
     rewardEl.textContent = obs.reward ?? "0";
     promptEl.textContent = obs.prompt_text || "0";
     if (feedbackEl) {
@@ -263,6 +335,22 @@ async function stepEnv() {
         el.textContent = t;
         feedbackTagsEl.appendChild(el);
       });
+    }
+    const feedbackText = obs.feedback || "";
+    if (feedbackText.startsWith("Incorrect:")) {
+      const expectedMatch = feedbackText.match(/expected\s+(safe|unsafe)/i);
+      const expected = expectedMatch ? expectedMatch[1].toLowerCase() : "unknown";
+      const reasonPart = feedbackText.split("Reason:")[1];
+      const reason = reasonPart ? reasonPart.trim() : "";
+      const items = getMistakes(currentLevel);
+      items.push({
+        prompt: prevPromptText || "",
+        decision: currentDecision,
+        expected,
+        reason,
+      });
+      setMistakes(currentLevel, items);
+      renderMistakes(currentLevel);
     }
     roundEl.textContent = formatRounds(obs);
     if ((obs.task_level || currentLevel) === "easy" && obs.lives > 1000) {
@@ -296,6 +384,9 @@ if (resetRoundBtn) {
 }
 if (roundOverBtn) {
   roundOverBtn.addEventListener("click", resetEnv);
+}
+if (clearMistakesBtn) {
+  clearMistakesBtn.addEventListener("click", () => clearMistakes(currentLevel));
 }
 healthBtn.addEventListener("click", checkHealth);
 stepBtn.addEventListener("click", stepEnv);

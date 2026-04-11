@@ -543,3 +543,67 @@ textarea {
   margin-bottom: 6px;
   color: var(--muted);
 }
+
+
+.mistakes {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.mistakes__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.btn--tiny {
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  border-radius: 10px;
+}
+
+.mistakes__list {
+  display: grid;
+  gap: 10px;
+}
+
+.mistake {
+  background: #0f141c;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.mistake__prompt {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+}
+
+.mistake__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.mistake__badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 120, 74, 0.35);
+  background: rgba(255, 120, 74, 0.16);
+  color: #ffd3c2;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.mistake__badge--expected {
+  border-color: rgba(45, 212, 191, 0.35);
+  background: rgba(45, 212, 191, 0.18);
+  color: #b9fff2;
+}
