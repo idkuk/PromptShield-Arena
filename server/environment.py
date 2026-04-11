@@ -347,7 +347,14 @@ class PromptShieldEnvironment(Environment):
                 }
 
         extra = uuid.uuid4().hex[:4]
-        fallback_base = "Explain a simple concept briefly."
+        if is_unsafe:
+            fallback_base = self._rng.choice(UNSAFE_TEMPLATES)
+            label = "unsafe"
+        else:
+            fallback_base = self._rng.choice(SAFE_TEMPLATES).format(
+                topic=self._rng.choice(SAFE_TOPICS)
+            )
+            label = "safe"
         prompt = f"{fallback_base} (detail-{extra})."
         PROMPT_TEXT_SEEN.add(prompt)
         self._append_prompt_log(prompt)
