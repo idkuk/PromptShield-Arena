@@ -213,6 +213,8 @@ class PromptShieldEnvironment(Environment):
     def _make_observation(self, reward, done: bool, feedback: str) -> PromptShieldObservation:
         self._state.prompt_id = self._current_item.get("id", "")
         attempts = max(1, self._state.attempts)
+        total_score = self._clamp_score(self._state.total_score)
+        avg_score = self._clamp_score(self._state.total_score / attempts)
         return PromptShieldObservation(
             done=done,
             reward=reward,
@@ -223,12 +225,16 @@ class PromptShieldEnvironment(Environment):
             total_rounds=self._state.total_rounds,
             lives=self._state.lives,
             streak=self._state.streak,
-            total_score=self._state.total_score,
-            average_score=self._state.total_score / attempts,
+            total_score=total_score,
+            average_score=avg_score,
             attempts=self._state.attempts,
             correct_count=self._state.correct_count,
             feedback=feedback,
         )
+
+    def _clamp_score(self, value: float) -> float:
+        # Scores must be strictly between 0 and 1 for validation.
+        return max(0.01, min(0.99, float(value)))
 
     def _grade(self, action: PromptShieldAction, item: Dict[str, str]) -> Tuple[float, str, bool]:
         label = item["label"]
