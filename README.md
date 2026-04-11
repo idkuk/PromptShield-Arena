@@ -1,4 +1,4 @@
-﻿---
+---
 title: PromptShield Arena
 emoji: 🚀
 colorFrom: indigo
