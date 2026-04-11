@@ -8,6 +8,9 @@ app_file: Dockerfile
 pinned: false
 ---
 # PromptShield Arena (OpenEnv)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Hugging Face Space](https://img.shields.io/badge/HF%20Space-PromptShield_Arena_Openenv_2026-yellow)](https://huggingface.co/spaces/idkuk67/PromptShield_Arena_Openenv_2026)
+
 ## Problem Statement
 Prompt injection is a real-world safety risk for AI systems. Agents must learn to detect unsafe prompts, explain why they are unsafe, and stay consistent under pressure. We need a reproducible OpenEnv environment that trains and evaluates this capability across difficulty levels.
 
@@ -37,9 +40,40 @@ Each task returns a score between 0.0 and 1.0 with partial credit for correct de
 ## Game Mechanics (UI)
 - Start a round to receive a prompt
 - Decide Safe or Unsafe and (optionally) explain why
-- Each wrong decision costs 1 life; 3 lives = round over
+- Each wrong decision costs 1 life; Easy has infinite lives, Medium has 3, Hard has 5
 - A round-over screen appears; start a new round with full lives
 - Score, streak, and accuracy update after every step
+
+
+## Architecture
+```mermaid
+flowchart LR
+  A[Prompt] --> B[Detector]
+(Policy + Heuristics)
+  B --> C{Decision}
+Safe / Unsafe
+  C --> D[Reward + Feedback]
+  D --> E[Next Prompt]
+```
+
+## Examples
+- `examples/sample_prompts.jsonl` shows sample prompts with expected labels.
+- `examples/sample_output.txt` shows stdout format for a short run.
+
+## Screenshots
+Add UI screenshots under `assets/` and link them here.
+
+## Resource Constraints
+Designed to run within **2 vCPU / 8 GB RAM** constraints.
+
+## Roadmap
+- Add PyTest coverage for environment logic.
+- Add GitHub Actions CI for validation and linting.
+- Add optional leaderboard mode.
+
+## Changelog
+- **2026-04-11**: Added wrong-answers review panel and UI polish.
+- **2026-04-10**: Added infinite prompt generation and feedback tags.
 
 ## Action Space
 `PromptShieldAction`
@@ -94,3 +128,7 @@ openenv validate
 - `server/Dockerfile`: HF Spaces container
 - `client.py`: OpenEnv EnvClient
 - `inference.py`: baseline inference script
+- `CONTRIBUTING.md`: contributor guide
+- `CODE_OF_CONDUCT.md`: community standards
+- `examples/`: sample prompts and stdout examples
+- `logs/`: local run logs (empty in repo)
