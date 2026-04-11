@@ -218,9 +218,10 @@ class PromptShieldEnvironment(Environment):
         attempts = max(1, self._state.attempts)
         total_score = self._clamp_score(self._state.total_score)
         avg_score = self._clamp_score(self._state.total_score)
+        safe_reward = self._clamp_score(reward if reward is not None else 0.01)
         return PromptShieldObservation(
             done=done,
-            reward=reward,
+            reward=safe_reward,
             prompt_id=self._current_item.get("id", ""),
             prompt_text=self._current_item.get("prompt", ""),
             task_level=self._state.task_level,
