@@ -25,11 +25,17 @@ class PromptShieldObservation(Observation):
     def _clamp_scores(self):
         # Enforce strict (0,1) range for any score-like fields.
         if self.reward is None:
-            self.reward = 0.1
+            object.__setattr__(self, "reward", 0.1)
         else:
-            self.reward = min(0.9, max(0.1, float(self.reward)))
-        self.total_score = min(0.9, max(0.1, float(self.total_score)))
-        self.average_score = min(0.9, max(0.1, float(self.average_score)))
+            object.__setattr__(
+                self, "reward", min(0.9, max(0.1, float(self.reward)))
+            )
+        object.__setattr__(
+            self, "total_score", min(0.9, max(0.1, float(self.total_score)))
+        )
+        object.__setattr__(
+            self, "average_score", min(0.9, max(0.1, float(self.average_score)))
+        )
         return self
 
 class PromptShieldState(State):
@@ -45,6 +51,8 @@ class PromptShieldState(State):
 
     @model_validator(mode="after")
     def _clamp_state_score(self):
-        self.total_score = min(0.9, max(0.1, float(self.total_score)))
+        object.__setattr__(
+            self, "total_score", min(0.9, max(0.1, float(self.total_score)))
+        )
         return self
 
