@@ -266,6 +266,22 @@ textarea {
   font-size: 1rem;
 }
 
+.feedback-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.feedback-tag {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: rgba(45, 212, 191, 0.12);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  color: #9efae5;
+}
+
 .level-list {
   display: grid;
   gap: 12px;

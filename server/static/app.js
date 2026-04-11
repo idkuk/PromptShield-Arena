@@ -6,6 +6,7 @@ const livesEl = document.getElementById("lives");
 const streakEl = document.getElementById("streak");
 const statusEl = document.getElementById("status");
 const feedbackEl = document.getElementById("feedback");
+const feedbackTagsEl = document.getElementById("feedbackTags");
 const totalScoreEl = document.getElementById("totalScore");
 const averageScoreEl = document.getElementById("averageScore");
 const correctCountEl = document.getElementById("correctCount");
@@ -23,6 +24,8 @@ const roundOverScoreEl = document.getElementById("roundOverScore");
 const roundOverAccEl = document.getElementById("roundOverAcc");
 const roundOverBestScoreEl = document.getElementById("roundOverBestScore");
 const roundOverBestRoundEl = document.getElementById("roundOverBestRound");
+const hudBestRoundEl = document.getElementById("hudBestRound");
+let tutorialShown = false;
 
 let currentDecision = "safe";
 let currentLevel = "easy";
@@ -100,6 +103,7 @@ function updateScoreboard(obs) {
   const updated = getBest(level);
   if (bestScoreEl) bestScoreEl.textContent = updated.score.toFixed(1);
   if (bestRoundEl) bestRoundEl.textContent = updated.round;
+  if (hudBestRoundEl) hudBestRoundEl.textContent = updated.round;
 }
 
 function formatRounds(obs) {
@@ -161,6 +165,9 @@ async function resetEnv() {
     if (feedbackEl) {
       feedbackEl.textContent = obs.feedback || "Awaiting your decision...";
     }
+    if (feedbackTagsEl) {
+      feedbackTagsEl.textContent = "";
+    }
     levelEl.textContent = obs.task_level ? obs.task_level.charAt(0).toUpperCase() + obs.task_level.slice(1) : "Easy";
     roundEl.textContent = formatRounds(obs);
     if ((obs.task_level || currentLevel) === "easy" && obs.lives > 1000) {
@@ -191,6 +198,9 @@ async function loadLevelState() {
     rewardEl.textContent = obs.reward ?? "0";
     if (feedbackEl) {
       feedbackEl.textContent = obs.feedback || "Awaiting your decision...";
+    }
+    if (feedbackTagsEl) {
+      feedbackTagsEl.textContent = "";
     }
     levelEl.textContent = obs.task_level ? obs.task_level.charAt(0).toUpperCase() + obs.task_level.slice(1) : "Easy";
     roundEl.textContent = formatRounds(obs);
@@ -238,6 +248,22 @@ async function stepEnv() {
     if (feedbackEl) {
       feedbackEl.textContent = obs.feedback || "No feedback available.";
     }
+    if (feedbackTagsEl) {
+      feedbackTagsEl.textContent = "";
+      const text = (obs.feedback || "").toLowerCase();
+      const tags = [];
+      if (text.includes("keyword")) tags.push("Keyword");
+      if (text.includes("system prompt")) tags.push("System Prompt");
+      if (text.includes("hidden rules") || text.includes("secrets")) tags.push("Secrets");
+      if (text.includes("bypass") || text.includes("override") || text.includes("ignore")) tags.push("Override");
+      if (text.includes("policy")) tags.push("Policy Trap");
+      tags.forEach((t) => {
+        const el = document.createElement("span");
+        el.className = "feedback-tag";
+        el.textContent = t;
+        feedbackTagsEl.appendChild(el);
+      });
+    }
     roundEl.textContent = formatRounds(obs);
     if ((obs.task_level || currentLevel) === "easy" && obs.lives > 1000) {
       livesEl.textContent = "∞";
@@ -247,6 +273,12 @@ async function stepEnv() {
     streakEl.textContent = obs.streak;
     updateScoreboard(obs);
     explanationEl.value = "";
+    if (!tutorialShown) {
+      tutorialShown = true;
+      if (feedbackEl) {
+        feedbackEl.textContent = "Tip: Unsafe prompts often ask to ignore rules or reveal hidden info.";
+      }
+    }
     if (obs.done && obs.lives === 0) {
       setStatus("Round over");
       showRoundOver(obs);
