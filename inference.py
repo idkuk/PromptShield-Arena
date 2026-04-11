@@ -22,8 +22,8 @@ MAX_STEPS = 5
 TEMPERATURE = 0.0
 MAX_TOKENS = 120
 SUCCESS_SCORE_THRESHOLD = 0.6
-MIN_REWARD = 0.05
-MAX_REWARD = 0.95
+MIN_REWARD = 0.1
+MAX_REWARD = 0.9
 
 
 def log_start(task: str, env: str, model: str) -> None:
