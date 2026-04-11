@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import uvicorn
+from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from openenv.core.env_server import create_fastapi_app
@@ -43,12 +44,15 @@ def game_reset(payload: dict):
 
 @app.post("/game/step")
 def game_step(payload: dict):
-    level = (payload.get("task_level") or "easy").lower()
-    payload = dict(payload)
-    payload.pop("task_level", None)
-    env = _get_env(level)
-    action = PromptShieldAction(**payload)
-    return env.step(action)
+    try:
+        level = (payload.get("task_level") or "easy").lower()
+        payload = dict(payload)
+        payload.pop("task_level", None)
+        env = _get_env(level)
+        action = PromptShieldAction(**payload)
+        return env.step(action)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 @app.post("/game/state")
 def game_state(payload: dict):
