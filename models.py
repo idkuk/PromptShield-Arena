@@ -1,5 +1,5 @@
 ﻿from typing import Optional, Literal
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from openenv.core.env_server import Action, Observation, State
 
 class PromptShieldAction(Action):
@@ -8,6 +8,7 @@ class PromptShieldAction(Action):
     explanation: Optional[str] = None
 
 class PromptShieldObservation(Observation):
+    reward: float = Field(default=0.1, gt=0.0, lt=1.0)
     prompt_id: str
     prompt_text: str
     task_level: Literal["easy", "medium", "hard"]
@@ -15,8 +16,8 @@ class PromptShieldObservation(Observation):
     total_rounds: int
     lives: int
     streak: int
-    total_score: float = 0.1
-    average_score: float = 0.1
+    total_score: float = Field(default=0.1, gt=0.0, lt=1.0)
+    average_score: float = Field(default=0.1, gt=0.0, lt=1.0)
     attempts: int
     correct_count: int
     feedback: str
@@ -45,7 +46,7 @@ class PromptShieldState(State):
     total_rounds: int = 0
     lives: int = 3
     streak: int = 0
-    total_score: float = 0.1
+    total_score: float = Field(default=0.1, gt=0.0, lt=1.0)
     attempts: int = 0
     correct_count: int = 0
 
