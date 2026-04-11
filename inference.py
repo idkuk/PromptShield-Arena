@@ -11,6 +11,7 @@ from models import PromptShieldAction
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 API_KEY = os.getenv("API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Environment endpoint (local OpenEnv server)
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
@@ -88,13 +89,14 @@ async def run_task(task: str) -> None:
     log_start(task=task, env=BENCHMARK, model=MODEL_NAME)
 
     try:
-        if not API_KEY:
-            last_error = "API_KEY is required for inference"
+        api_key = API_KEY or HF_TOKEN
+        if not api_key:
+            last_error = "API_KEY or HF_TOKEN is required for inference"
             rewards.append(0.5)
             log_step(step=1, action="error", reward=0.5, done=True, error=last_error)
             return
 
-        client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+        client = OpenAI(base_url=API_BASE_URL, api_key=api_key)
         env = await PromptShieldEnv.from_base_url(ENV_BASE_URL)
         result = await env.reset(task_level=task, total_rounds=MAX_STEPS, lives=3)
         obs = result.observation
