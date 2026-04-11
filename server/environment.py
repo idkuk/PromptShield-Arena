@@ -142,6 +142,7 @@ class PromptShieldEnvironment(Environment):
         self._initial_lives = 3
         self._safe_count = 0
         self._unsafe_count = 0
+        self._raw_total_score = 0.0
         self._load_prompt_log()
         self._load_prompt_counters()
 
@@ -164,6 +165,7 @@ class PromptShieldEnvironment(Environment):
             attempts=0,
             correct_count=0,
         )
+        self._raw_total_score = 0.0
 
         self._current_item = self._generate_prompt(task_level)
         PROMPT_STORE[self._current_item["id"]] = self._current_item
@@ -187,8 +189,9 @@ class PromptShieldEnvironment(Environment):
             self._state.streak += 1
             self._state.correct_count += 1
 
-        self._state.total_score += float(score)
+        self._raw_total_score += float(score)
         self._state.attempts += 1
+        self._state.total_score = self._clamp_score(self._raw_total_score / max(1, self._state.attempts))
 
         done = self._state.lives == 0 or (
             self._state.total_rounds > 0 and self._state.round_index >= self._state.total_rounds
@@ -214,7 +217,7 @@ class PromptShieldEnvironment(Environment):
         self._state.prompt_id = self._current_item.get("id", "")
         attempts = max(1, self._state.attempts)
         total_score = self._clamp_score(self._state.total_score)
-        avg_score = self._clamp_score(self._state.total_score / attempts)
+        avg_score = self._clamp_score(self._state.total_score)
         return PromptShieldObservation(
             done=done,
             reward=reward,
