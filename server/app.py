@@ -44,6 +44,8 @@ def game_reset(payload: dict):
 @app.post("/game/step")
 def game_step(payload: dict):
     level = (payload.get("task_level") or "easy").lower()
+    payload = dict(payload)
+    payload.pop("task_level", None)
     env = _get_env(level)
     action = PromptShieldAction(**payload)
     return env.step(action)

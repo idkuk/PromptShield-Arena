@@ -21,6 +21,8 @@ const roundOverEl = document.getElementById("roundOver");
 const roundOverBtn = document.getElementById("roundOverBtn");
 const roundOverScoreEl = document.getElementById("roundOverScore");
 const roundOverAccEl = document.getElementById("roundOverAcc");
+const roundOverBestScoreEl = document.getElementById("roundOverBestScore");
+const roundOverBestRoundEl = document.getElementById("roundOverBestRound");
 
 let currentDecision = "safe";
 let currentLevel = "easy";
@@ -53,12 +55,16 @@ function showRoundOver(obs) {
   const attempts = Math.max(1, obs.attempts ?? 1);
   const rawAcc = ((obs.correct_count ?? 0) / attempts) * 100;
   const acc = Math.min(100, Math.round(rawAcc));
+  const level = obs.task_level || currentLevel;
   if (roundOverScoreEl) {
     roundOverScoreEl.textContent = (obs.total_score ?? 0).toFixed(1);
   }
   if (roundOverAccEl) {
     roundOverAccEl.textContent = `${acc}%`;
   }
+  const best = getBest(level);
+  if (roundOverBestScoreEl) roundOverBestScoreEl.textContent = best.score.toFixed(1);
+  if (roundOverBestRoundEl) roundOverBestRoundEl.textContent = best.round;
   roundOverEl.classList.remove("hidden");
 }
 
