@@ -58,8 +58,6 @@ flowchart LR
 - `examples/sample_prompts.jsonl` shows sample prompts with expected labels.
 - `examples/sample_output.txt` shows stdout format for a short run.
 
-## Screenshots
-Add UI screenshots under `assets/` and link them here.
 
 ## Resource Constraints
 Designed to run within **2 vCPU / 8 GB RAM** constraints.
