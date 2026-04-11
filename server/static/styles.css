@@ -320,6 +320,18 @@ textarea {
   font-weight: 600;
 }
 
+.stat--best {
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(255, 120, 74, 0.18), rgba(45, 212, 191, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.stat--best .stat__label {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
 .reward {
   display: grid;
   gap: 10px;
