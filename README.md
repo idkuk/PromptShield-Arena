@@ -67,7 +67,10 @@ Designed to run within **2 vCPU / 8 GB RAM** constraints.
 ## Roadmap
 - Add PyTest coverage for environment logic.
 - Add GitHub Actions CI for validation and linting.
-- Add optional leaderboard mode.
+- Add optional leaderboard mode to track highest-scoring agents globally.
+- **Multilingual Prompts**: Expand the prompt generator to support safe/unsafe prompts in multiple languages to test multilingual robustness.
+- **Dynamic Difficulty**: Automatically scale the challenge level based on the agent's current streak and accuracy.
+- **Real-world Jailbreak Datasets**: Integrate community datasets (e.g., JailbreakChat) for real-world attack evaluations.
 
 ## Changelog
 - **2026-04-11**: Added wrong-answers review panel and UI polish.
