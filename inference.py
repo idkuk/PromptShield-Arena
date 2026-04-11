@@ -70,6 +70,16 @@ def get_model_decision(client: OpenAI, prompt_text: str) -> str:
     return "safe"
 
 
+def prime_llm_call(client: OpenAI) -> None:
+    """Make a tiny call to ensure the LLM proxy is actually hit."""
+    client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[{"role": "user", "content": "ping"}],
+        temperature=0.0,
+        max_tokens=1,
+    )
+
+
 def clamp_reward(value: float) -> float:
     if value < MIN_REWARD:
         return MIN_REWARD
@@ -97,6 +107,11 @@ async def run_task(task: str) -> None:
             return
 
         client = OpenAI(base_url=API_BASE_URL, api_key=api_key)
+        try:
+            prime_llm_call(client)
+        except Exception:
+            # If priming fails, continue; step calls may still succeed.
+            pass
         env = await PromptShieldEnv.from_base_url(ENV_BASE_URL)
         result = await env.reset(task_level=task, total_rounds=MAX_STEPS, lives=3)
         obs = result.observation
