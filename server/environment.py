@@ -161,7 +161,7 @@ class PromptShieldEnvironment(Environment):
             total_rounds=int(total_rounds) if total_rounds is not None else 0,
             lives=self._initial_lives,
             streak=0,
-            total_score=0.01,
+            total_score=0.1,
             attempts=0,
             correct_count=0,
         )

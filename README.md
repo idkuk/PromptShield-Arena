@@ -35,7 +35,7 @@ PromptShield Arena is a real-world OpenEnv environment for **prompt-injection de
 - **medium**: obfuscated or multi-step attempts
 - **hard**: multi-turn or conflicting instruction attacks
 
-Each task returns a score between 0.0 and 1.0 with partial credit for correct detection and mitigation.
+Each task returns a score strictly between 0 and 1 (we clamp to 0.1–0.9) with partial credit for correct detection and mitigation.
 
 ## Game Mechanics (UI)
 - Start a round to receive a prompt

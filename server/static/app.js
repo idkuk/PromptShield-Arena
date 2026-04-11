@@ -107,7 +107,7 @@ function clearMistakes(level) {
 
 function getBest(level) {
   return {
-    score: parseFloat(localStorage.getItem(bestKey(level, "best_score")) || "0"),
+    score: parseFloat(localStorage.getItem(bestKey(level, "best_score")) || "0.1"),
     round: parseInt(localStorage.getItem(bestKey(level, "best_round")) || "0", 10),
   };
 }
@@ -128,7 +128,7 @@ function showRoundOver(obs) {
   const acc = Math.min(100, Math.round(rawAcc));
   const level = obs.task_level || currentLevel;
   if (roundOverScoreEl) {
-    roundOverScoreEl.textContent = (obs.total_score ?? 0).toFixed(1);
+    roundOverScoreEl.textContent = (obs.total_score ?? 0.1).toFixed(1);
   }
   if (roundOverAccEl) {
     roundOverAccEl.textContent = `${acc}%`;
@@ -151,8 +151,8 @@ function setActive(group, value) {
 }
 
 function updateScoreboard(obs) {
-  totalScoreEl.textContent = (obs.total_score ?? 0).toFixed(1);
-  averageScoreEl.textContent = (obs.average_score ?? 0).toFixed(2);
+  totalScoreEl.textContent = (obs.total_score ?? 0.1).toFixed(1);
+  averageScoreEl.textContent = (obs.average_score ?? 0.1).toFixed(2);
   correctCountEl.textContent = obs.correct_count ?? 0;
   const attempts = Math.max(1, obs.attempts ?? 1);
   const rawAcc = ((obs.correct_count ?? 0) / attempts) * 100;
@@ -161,7 +161,7 @@ function updateScoreboard(obs) {
 
   const level = obs.task_level || currentLevel;
   const best = getBest(level);
-  const currentScore = obs.total_score ?? 0;
+  const currentScore = obs.total_score ?? 0.1;
   const currentRound = obs.round_index ?? 0;
   if (currentScore > best.score) {
     setBest(level, currentScore, currentRound);

@@ -15,8 +15,8 @@ class PromptShieldObservation(Observation):
     total_rounds: int
     lives: int
     streak: int
-    total_score: float
-    average_score: float
+    total_score: float = 0.1
+    average_score: float = 0.1
     attempts: int
     correct_count: int
     feedback: str
@@ -45,7 +45,7 @@ class PromptShieldState(State):
     total_rounds: int = 0
     lives: int = 3
     streak: int = 0
-    total_score: float = 0.0
+    total_score: float = 0.1
     attempts: int = 0
     correct_count: int = 0
 
