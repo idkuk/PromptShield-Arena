@@ -3,6 +3,7 @@ from pathlib import Path
 import uvicorn
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
+from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 from openenv.core.env_server import create_fastapi_app
 
@@ -14,6 +15,41 @@ app = create_fastapi_app(
     PromptShieldAction,
     PromptShieldObservation,
 )
+
+
+def _sanitize_score_examples(obj, path: str = "") -> None:
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            next_path = f"{path}.{key}" if path else key
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                haystack = f"{key} {next_path}".lower()
+                if "score" in haystack or "reward" in haystack:
+                    if value <= 0:
+                        obj[key] = 0.1
+                    elif value >= 1:
+                        obj[key] = 0.9
+            _sanitize_score_examples(value, next_path)
+    elif isinstance(obj, list):
+        for idx, value in enumerate(obj):
+            _sanitize_score_examples(value, f"{path}[{idx}]")
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+        tags=app.openapi_tags,
+    )
+    _sanitize_score_examples(openapi_schema)
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 LEVEL_LIVES = {
     "easy": 999999,  # treat as infinite in UI
